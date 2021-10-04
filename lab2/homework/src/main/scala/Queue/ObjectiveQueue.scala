@@ -1,4 +1,5 @@
 package Queue
+//todo can you instantiate an empty q?
 abstract class ObjectiveQueue
 {
   /**
@@ -63,4 +64,88 @@ abstract class ObjectiveQueue
    * Iterates all numbers from this queue and inputs them in a loopFunction
    */
   def foreach(loopFunction: Int => Unit): Unit
+
+  def print(): Unit
+  def getReverseList(): List[Int]
 }
+
+object EmptyQueueNode extends ObjectiveQueue {
+
+  override def contains(item:Int):Boolean = false
+  override def appended(number: Int): ObjectiveQueue = {
+    new ObjectiveQueueNode(number, this)
+  }
+
+  //todo just a POC
+  override def prepended(number: Int): ObjectiveQueue  = {
+    new ObjectiveQueueNode(number, this)
+  }
+
+  override def front: Int = -1
+
+  override def back: Int = -1
+
+  override def isEmpty: Boolean = true
+
+  override def poppedFront(): ObjectiveQueue = this
+
+  override def poppedBack(): ObjectiveQueue = this
+
+  override def filter(predicate: Int => Boolean): ObjectiveQueue = this
+
+  override def map(transform: Int => Int): ObjectiveQueue = this
+
+  override def forall(predicate: Int => Boolean): Boolean = true
+
+  override def foreach(loopFunction: Int => Unit): Unit = {}
+
+  override def print():Unit = {}
+  override def getReverseList(): List[Int] = { List[Int]()}
+}
+
+object ObjectiveQueue{
+  def apply(number: Int): ObjectiveQueue = new ObjectiveQueueNode(number, EmptyQueueNode)
+}
+
+class ObjectiveQueueNode ( val value: Int, prev: ObjectiveQueue) extends ObjectiveQueue{
+  override def contains(item:Int):Boolean = {
+    item == value || prev.contains(item)
+  }
+  override def appended(number: Int): ObjectiveQueue = {
+    new ObjectiveQueueNode(number, this)
+  }
+
+  override def prepended(number: Int): ObjectiveQueue  = {
+    this.union(prev.prepended(number))
+  }
+  def union(q : ObjectiveQueue): ObjectiveQueue = {
+    new ObjectiveQueueNode(this.value, q)
+  }
+
+  override def front: Int = -1
+
+  override def back: Int = -1
+
+  override def isEmpty: Boolean = true
+
+  override def poppedFront(): ObjectiveQueue = this
+
+  override def poppedBack(): ObjectiveQueue = this
+
+  override def filter(predicate: Int => Boolean): ObjectiveQueue = this
+
+  override def map(transform: Int => Int): ObjectiveQueue = this
+
+  override def forall(predicate: Int => Boolean): Boolean = true
+
+  override def foreach(loopFunction: Int => Unit): Unit = {}
+
+  override def print() : Unit = {
+    println(value)
+    prev.print()
+  }
+  override def getReverseList(): List[Int] = {
+    value +: prev.getReverseList()
+  }
+}
+
