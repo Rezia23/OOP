@@ -66,7 +66,7 @@ abstract class ObjectiveQueue
   def foreach(loopFunction: Int => Unit): Unit
 
   def print(): Unit
-  def getReverseList(): List[Int]
+  def getReverseList: List[Int]
 }
 
 object EmptyQueueNode extends ObjectiveQueue {
@@ -75,15 +75,13 @@ object EmptyQueueNode extends ObjectiveQueue {
   override def appended(number: Int): ObjectiveQueue = {
     new ObjectiveQueueNode(number, this)
   }
-
-  //todo just a POC
   override def prepended(number: Int): ObjectiveQueue  = {
     new ObjectiveQueueNode(number, this)
   }
 
-  override def front: Int = -1
+  override def front: Int = Int.MinValue
 
-  override def back: Int = -1
+  override def back: Int = Int.MinValue
 
   override def isEmpty: Boolean = true
 
@@ -100,7 +98,7 @@ object EmptyQueueNode extends ObjectiveQueue {
   override def foreach(loopFunction: Int => Unit): Unit = {}
 
   override def print():Unit = {}
-  override def getReverseList(): List[Int] = { List[Int]()}
+  override def getReverseList: List[Int] = { List[Int]()}
 }
 
 object ObjectiveQueue{
@@ -122,15 +120,25 @@ class ObjectiveQueueNode ( val value: Int, prev: ObjectiveQueue) extends Objecti
     new ObjectiveQueueNode(this.value, q)
   }
 
-  override def front: Int = -1
+  override def front: Int = {
+    if(prev.isEmpty){
+       return value
+    }
+    prev.front
+  }
 
-  override def back: Int = -1
+  override def back: Int = value
 
-  override def isEmpty: Boolean = true
+  override def isEmpty: Boolean = false
 
-  override def poppedFront(): ObjectiveQueue = this
+  override def poppedFront(): ObjectiveQueue = {
+    if(prev.isEmpty){
+      return EmptyQueueNode
+    }
+    this.union(prev.poppedFront())
+  }
 
-  override def poppedBack(): ObjectiveQueue = this
+  override def poppedBack(): ObjectiveQueue = prev
 
   override def filter(predicate: Int => Boolean): ObjectiveQueue = this
 
@@ -144,8 +152,8 @@ class ObjectiveQueueNode ( val value: Int, prev: ObjectiveQueue) extends Objecti
     println(value)
     prev.print()
   }
-  override def getReverseList(): List[Int] = {
-    value +: prev.getReverseList()
+  override def getReverseList: List[Int] = {
+    value +: prev.getReverseList
   }
 }
 
