@@ -135,18 +135,30 @@ class ObjectiveQueueNode ( val value: Int, prev: ObjectiveQueue) extends Objecti
     if(prev.isEmpty){
       return EmptyQueueNode
     }
-    this.union(prev.poppedFront())
+    new ObjectiveQueueNode(value, prev.poppedFront())
   }
 
   override def poppedBack(): ObjectiveQueue = prev
 
-  override def filter(predicate: Int => Boolean): ObjectiveQueue = this
+  override def filter(predicate: Int => Boolean): ObjectiveQueue = {
+    if(predicate(value)){
+      return new ObjectiveQueueNode(value, prev.filter(predicate))
+    }
+    prev.filter(predicate)
+  }
 
-  override def map(transform: Int => Int): ObjectiveQueue = this
+  override def map(transform: Int => Int): ObjectiveQueue = {
+    new ObjectiveQueueNode(transform(value), prev.map(transform))
+  }
 
-  override def forall(predicate: Int => Boolean): Boolean = true
+  override def forall(predicate: Int => Boolean): Boolean = {
+    predicate(value) && prev.forall(predicate)
+  }
 
-  override def foreach(loopFunction: Int => Unit): Unit = {}
+  override def foreach(loopFunction: Int => Unit): Unit = {
+    prev.foreach(loopFunction)
+    loopFunction(value)
+  }
 
   override def print() : Unit = {
     println(value)
