@@ -23,16 +23,16 @@ abstract class ObjectiveSet[+T] {
    */
   def union[S >: T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S]
 
-//  /**
-//   * Returns a new set that contains numbers that are in this set and the other set simultaneously
-//   */
-//  def intersection(set: ObjectiveSet): ObjectiveSet
-//
-//  /**
-//   * Returns a new set that contains numbers from this set that are not in the other set
-//   */
-//  def difference(set: ObjectiveSet): ObjectiveSet
-//
+  /**
+   * Returns a new set that contains numbers that are in this set and the other set simultaneously
+   */
+  def intersection[S >: T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S]
+
+  /**
+   * Returns a new set that contains numbers from this set that are not in the other set
+   */
+  def difference[S >: T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S]
+
 //  /**
 //   * Returns a new set that contains numbers returning true from the predicate
 //   */
@@ -106,21 +106,21 @@ class ObjectiveSetNode[T <:Ordered[T]](val value: T, left: ObjectiveSet[T], righ
   override def union[S >:T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = {
     left.union(right.union(set)).including(value)
   }
-//
-//  override def intersection(set: ObjectiveSet): ObjectiveSet = {
-//    var res = left.intersection(set).union(right.intersection(set));
-//    if (set.contains(value))
-//      res = res.including(value)
-//    res
-//  }
-//
-//  override def difference(set: ObjectiveSet): ObjectiveSet = {
-//    if (!set.contains(value))
-//      new ObjectiveSetNode(value, left.difference(set), right.difference(set))
-//    else
-//      left.union(right).difference(set)
-//  }
-//
+
+  override def intersection[S >:T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = {
+    var res = left.intersection(set).union(right.intersection(set));
+    if (set.contains(value))
+      res = res.including(value)
+    res
+  }
+
+  override def difference[S >:T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = {
+    if (!set.contains(value))
+      new ObjectiveSetNode(value, left.difference(set), right.difference(set))
+    else
+      left.union(right).difference(set)
+  }
+
 //  override def filter(predicate: Int => Boolean): ObjectiveSet = {
 //    if (predicate(value))
 //      new ObjectiveSetNode(value, left.filter(predicate), right.filter(predicate))
@@ -159,11 +159,11 @@ object EmptySet extends ObjectiveSet[Nothing]{
   override def excluding[S >:Nothing <: Ordered[S]](item: S): ObjectiveSet[Nothing] = this
 
   override def union[S >:Nothing <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = set
-//
-//  override def intersection(set: ObjectiveSet): ObjectiveSet = this
-//
-//  override def difference(set: ObjectiveSet): ObjectiveSet = this
-//
+
+  override def intersection[S >: Nothing <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = this
+
+  override def difference[S >: Nothing <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = this
+
 //  override def filter(predicate: Int => Boolean): ObjectiveSet = this
 //
 //  override def map(transform: Int => Int): ObjectiveSet = this
