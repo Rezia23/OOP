@@ -46,5 +46,30 @@ class GenericSetTest extends FunSuite {
       assert(!st.contains[BigInt](4))
 
   }
+  test("Filter") {
+    val s1 = ObjectiveSet[BigInt](1, 2, 3, 4)
+    val s = s1.filter(e => e % 2 == 0)
+
+    assert(!s.contains[BigInt](1))
+    assert(s.contains[BigInt](2))
+    assert(!s.contains[BigInt](3))
+    assert(s.contains[BigInt](4))
+  }
+
+  test("Map") {
+    val s1 = ObjectiveSet[BigInt](1, 2, 3)
+    val s = s1.map[BigInt](e => e * 2)
+
+    assert(!s.contains[BigInt](1))
+    assert(s.contains[BigInt](2))
+    assert(!s.contains[BigInt](3))
+    assert(!s.contains[BigInt](3))
+    assert(s.contains[BigInt](4))
+    assert(!s.contains[BigInt](5))
+    assert(s.contains[BigInt](6))
+    assert(!s.contains[BigInt](7))
+  }
+
+
 
 }

@@ -33,16 +33,16 @@ abstract class ObjectiveSet[+T] {
    */
   def difference[S >: T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S]
 
-//  /**
-//   * Returns a new set that contains numbers returning true from the predicate
-//   */
-//  def filter(predicate: Int => Boolean): ObjectiveSet
-//
-//  /**
-//   * Returns a new set where all numbers from this set were transformed using a transform function
-//   */
-//  def map(transform: Int => Int): ObjectiveSet
-//
+  /**
+   * Returns a new set that contains numbers returning true from the predicate
+   */
+  def filter(predicate: T => Boolean): ObjectiveSet[T]
+
+  /**
+   * Returns a new set where all numbers from this set were transformed using a transform function
+   */
+  def map[S >: T <: Ordered[S]](transform: T => S): ObjectiveSet[S]
+
 //  /**
 //   * Returns true if all numbers from this set return true from a predicate.
 //   * Else false.
@@ -121,16 +121,16 @@ class ObjectiveSetNode[T <:Ordered[T]](val value: T, left: ObjectiveSet[T], righ
       left.union(right).difference(set)
   }
 
-//  override def filter(predicate: Int => Boolean): ObjectiveSet = {
-//    if (predicate(value))
-//      new ObjectiveSetNode(value, left.filter(predicate), right.filter(predicate))
-//    else
-//      left.filter(predicate).union(right.filter(predicate))
-//  }
-//
-//  override def map(transform: Int => Int): ObjectiveSet = {
-//    new ObjectiveSetNode(transform(value), left.map(transform), right.map(transform))
-//  }
+  override def filter(predicate: T => Boolean): ObjectiveSet[T] = {
+    if (predicate(value))
+      new ObjectiveSetNode(value, left.filter(predicate), right.filter(predicate))
+    else
+      left.filter(predicate).union(right.filter(predicate))
+  }
+
+  override def map[S >: T <: Ordered[S]](transform: T => S): ObjectiveSet[S] = {
+    new ObjectiveSetNode(transform(value), left.map(transform), right.map(transform))
+  }
 //
 //  override def forall(predicate: Int => Boolean): Boolean = {
 //    predicate(value) && left.forall(predicate) && right.forall(predicate)
@@ -164,9 +164,9 @@ object EmptySet extends ObjectiveSet[Nothing]{
 
   override def difference[S >: Nothing <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = this
 
-//  override def filter(predicate: Int => Boolean): ObjectiveSet = this
-//
-//  override def map(transform: Int => Int): ObjectiveSet = this
+  override def filter(predicate: Nothing => Boolean): ObjectiveSet[Nothing] = this
+
+  override def map[S<: Ordered[S]](transform: Nothing => S): ObjectiveSet[Nothing] = this
 //
 //  override def forall(predicate: Int => Boolean): Boolean = true
 //
