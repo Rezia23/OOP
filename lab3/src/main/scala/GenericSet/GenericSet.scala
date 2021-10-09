@@ -1,28 +1,28 @@
 package GenericSet
 
-abstract class ObjectiveSet {
+abstract class ObjectiveSet[+T] {
 
   /**
    * Returns true if a number is in the set.
    * Else false.
    */
-  def contains(item: Int): Boolean
+  def contains[S >: T<: Ordered[S]](item: S): Boolean
 
   /**
    * Returns a new set that includes a number
    */
-  def including(item: Int): ObjectiveSet
-//
-//  /**
-//   * Returns a new set without a number
-//   */
-//  def excluding(item: Int): ObjectiveSet
-//
-//  /**
-//   * Returns a new set that includes numbers from this set and a set
-//   */
-//  def union(set: ObjectiveSet): ObjectiveSet
-//
+  def including[S >: T <: Ordered[S]](item: S): ObjectiveSet[S]
+
+  /**
+   * Returns a new set without a number
+   */
+  def excluding[S >: T <: Ordered[S]](item: S): ObjectiveSet[T]
+
+  /**
+   * Returns a new set that includes numbers from this set and a set
+   */
+  def union[S >: T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S]
+
 //  /**
 //   * Returns a new set that contains numbers that are in this set and the other set simultaneously
 //   */
@@ -61,13 +61,21 @@ abstract class ObjectiveSet {
 }
 
 object ObjectiveSet{
-  def apply(number: Int): ObjectiveSet = new ObjectiveSetNode(number, EmptyImmutableSetNode, EmptyImmutableSetNode)
+    def apply[T <: Ordered[T]](items: T*): ObjectiveSet[T] = {
+      var resultSet: ObjectiveSet[T] = EmptySet
+
+      for(item <- items)
+      resultSet = resultSet.including(item)
+
+      resultSet
+    }
+
 }
 
-class ObjectiveSetNode(val value: Int, left: ObjectiveSet, right: ObjectiveSet) extends ObjectiveSet
+class ObjectiveSetNode[T <:Ordered[T]](val value: T, left: ObjectiveSet[T], right: ObjectiveSet[T]) extends ObjectiveSet[T]
 {
 
-  override def contains(item: Int): Boolean = {
+  override def contains[S >: T <: Ordered[S]](item: S): Boolean = {
     if (item < value)
       left.contains(item)
     else if (item > value)
@@ -76,7 +84,7 @@ class ObjectiveSetNode(val value: Int, left: ObjectiveSet, right: ObjectiveSet) 
       true
   }
 
-  override def including(item: Int): ObjectiveSet = {
+  override def including[S >: T<: Ordered[S]](item: S): ObjectiveSet[S] = {
     if (item == value)
       throw new IllegalArgumentException("Value already exists");
 
@@ -85,19 +93,19 @@ class ObjectiveSetNode(val value: Int, left: ObjectiveSet, right: ObjectiveSet) 
     else
       new ObjectiveSetNode(value, left, right.including(item));
   }
-//
-//  override def excluding(item: Int): ObjectiveSet = {
-//    if (item < value)
-//      new ObjectiveSetNode(value, left.excluding(item), right)
-//    else if (item > value)
-//      new ObjectiveSetNode(value, left, right.excluding(item))
-//    else
-//      left.union(right)
-//  }
-//
-//  override def union(set: ObjectiveSet): ObjectiveSet = {
-//    left.union(right.union(set)).including(value)
-//  }
+
+  override def excluding[S >: T <: Ordered[S]](item: S): ObjectiveSet[T] = {
+    if (item < value)
+      new ObjectiveSetNode(value, left.excluding(item), right)
+    else if (item > value)
+      new ObjectiveSetNode(value, left, right.excluding(item))
+    else
+      left.union(right)
+  }
+
+  override def union[S >:T <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = {
+    left.union(right.union(set)).including(value)
+  }
 //
 //  override def intersection(set: ObjectiveSet): ObjectiveSet = {
 //    var res = left.intersection(set).union(right.intersection(set));
@@ -141,16 +149,16 @@ class ObjectiveSetNode(val value: Int, left: ObjectiveSet, right: ObjectiveSet) 
 //  }
 }
 
-object EmptyImmutableSetNode extends ObjectiveSet{
-  override def contains(item: Int): Boolean = false
+object EmptySet extends ObjectiveSet[Nothing]{
+  override def contains[S >: Nothing](item: S): Boolean = false
 
-  override def including(item: Int): ObjectiveSet = {
+  override def including[S >:Nothing <: Ordered[S]](item: S): ObjectiveSet[S] = {
     new ObjectiveSetNode(item, this, this)
   }
 
-//  override def excluding(item: Int): ObjectiveSet = this
-//
-//  override def union(set: ObjectiveSet): ObjectiveSet = set
+  override def excluding[S >:Nothing <: Ordered[S]](item: S): ObjectiveSet[Nothing] = this
+
+  override def union[S >:Nothing <: Ordered[S]](set: ObjectiveSet[S]): ObjectiveSet[S] = set
 //
 //  override def intersection(set: ObjectiveSet): ObjectiveSet = this
 //
